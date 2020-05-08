@@ -16,7 +16,11 @@
 
 (defn send-message [bot-token chat-id message]
   (http/post (hook-url bot-token)
-             {:content-type :json
+             {:proxy-host (config/proxy-host)
+              :proxy-port (Integer/parseInt (config/proxy-port))
+              :proxy-user (config/proxy-user)
+              :proxy-pass (config/proxy-pass)
+              :content-type :json
               :form-params {"chat_id" chat-id
                             "text" message
                             "disable_web_page_preview" true
@@ -45,7 +49,11 @@
   (async/thread
     (while true
       (try
-        (let [result (json/parse-string (:body (http/get (updates-url bot-token @offset))) true)
+        (let [result (json/parse-string (:body (http/get (updates-url bot-token @offset)
+            {:proxy-host (config/proxy-host)
+              :proxy-port (Integer/parseInt (config/proxy-port))
+              :proxy-user (config/proxy-user)
+              :proxy-pass (config/proxy-pass)})) true)
               updates (:result result)
               last-update-id (:update_id (last updates))]
           (process-updates bot-token updates)
